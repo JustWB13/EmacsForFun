@@ -3,6 +3,8 @@
 (setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
                          ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
 (package-initialize)
+;;开始界面
+(setq initial-buffer-choice "~/start.org")
 ;;一键编译
 (defun compile-file ()(interactive)(compile (format "g++ -o %s %s -g -std=c++11 -lm -Wall" (file-name-sans-extension (buffer-name))(buffer-name))))
 (global-set-key [f9] 'compile-file)

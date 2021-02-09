@@ -36,3 +36,25 @@ ls -al
 cd .ssh
 ls
 cat id_rsa.pub 
+ssh -T git@github.com
+ls
+git init
+git add .
+git status
+git status-sb
+git status -sb
+git commit -m "first add"
+git status
+git log
+git remote add origin git@github.com:JustWB13/EmacsForFun.git
+git branch -M main
+git push -u origin main
+clear
+ls
+ls -al
+ls
+cd .emacs.d/
+ls
+git status
+git commit -a "welcom screen change"
+git commit -a
