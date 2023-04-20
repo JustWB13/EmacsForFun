@@ -1,45 +1,3 @@
-./main.py 
-cd ../../
-cd ../..
-ls
-cd ceriebots-dev/sim-chinavenue/
-ls
-./main.py 
-./main.py 
-./main.py 
-pwd
-cd ../../cpp/src/cerie/china_venue/
-ls
-svn status
-svn commit -m "fix ERDEV-5152"
-ls
-./main.py 
-ls
-python3 ReadNDownload.py 
-python3 ReadNDownload.py 
-python3 ReadNDownload.py 
-python3 ReadNDownload.py 
-python3 ReadNDownload.py 
-python3 ReadNDownload.py 
-python3 ReadNDownload.py 
-python3 ReadNDownload.py 
-ls -al
-ls
-ls
-cd 10-downloaded/
-ls
-ls 2022-01-29
-ls 2022-01-28
-cd ..
-ls
-clear
-ls
-python3 ReadNDownload.py 
-ls
-ls
-python3 ReadNDownload.py 
-ls
-mv 10-download.py download.py
 python3 ReadNDownload.py 
 pdftoppm
 whereis pdftoppm
@@ -119,3 +77,52 @@ cd ../erie_test
 python3 Quote2Shmem_test.py 
 python3 Quote2Shmem_test.py 
 python3 Quote2Shmem_test.py 
+python core_technical.py 
+python core_technical.py 
+python core_technical.py 
+cd ..
+ls
+cd ..
+cd kris
+ls
+cd ..
+ls
+cd liuchang
+cd D230323_core_technical/
+python core_technical.py 
+python core_technical.py 
+python core_technical.py 
+cd ..
+cd ..
+python -m t1_catalog.liuchang.D230323_core_technical.core_technical
+python -m t1_catalog.liuchang.D230323_core_technical.core_technical	
+cd ..,..
+cd ../..
+python t1_catalog.kris.D230323_core_technical.core_technical
+python t1_catalog.liuchang.D230323_core_technical.core_technical
+python -m t1_catalog.liuchang.D230323_core_technical.core_technical
+python -m t1_catalog.liuchang.D230323_core_technical.core_technical
+python -m t1_catalog.liuchang.D230323_core_technical.core_technical
+python -m t1_catalog.liuchang.D230323_core_technical.core_technical
+python -m t1_catalog.liuchang.D230323_core_technical.core_technical
+python -m t1_catalog.liuchang.D230323_core_technical.core_technical
+python -m t1_catalog.liuchang.D230323_core_technical.core_technical
+ls
+grep ModelExsymModeCommand *
+cd ..
+ls
+cd ../..
+cd femas_stock_1.04.06/
+ls
+USTPFtdcMduserApi.h  USTPFtdcUserApiDataType.h  libUSTPmduserapi_1_04_06.so
+ls
+cat USTPFtdcMduserApi.h 
+tcping 58.34.153.98 33618
+tcping 58.34.153.98 33613
+tcping 58.34.153.98 9987
+python main.py 
+ls
+./ceriebot 
+cd logs/
+ls
+emacs homewuboerieceriebots-devfemas_stockceriebot.erielog.20230420-134254.log 
