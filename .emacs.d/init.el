@@ -1,7 +1,18 @@
+(setq gc-cons-threshold 32000000)
+(setq read-process-output-max (* 1024 1024)) ;; 1mb
 (setq make-backup-files nil)
 (setq-default tab-width 4)
 (setq-default indent-tabs-mode nil)
 (setq c-basic-offset 4)
+(c-add-style "microsoft"
+             '("stroustrup"
+               (c-offsets-alist
+                (innamespace . -)
+                (inline-open . 0)
+                (inher-cont . c-lineup-multi-inher)
+                ;; (arglist-cont-nonempty . +)
+                (template-args-cont . +))))
+(setq c-default-style "microsoft")
 (global-linum-mode 1)
 (global-hl-line-mode 1);;高亮当前行
 (show-paren-mode t);;高亮匹配括号
@@ -26,7 +37,8 @@
  '(custom-enabled-themes '(monokai))
  '(custom-safe-themes
    '("95b0bc7b8687101335ebbf770828b641f2befdcf6d3c192243a251ce72ab1692" default))
- '(package-selected-packages '(company monokai-theme)))
+ '(package-selected-packages '(company monokai-theme))
+ '(warning-suppress-types '(((undo discard-info)))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
