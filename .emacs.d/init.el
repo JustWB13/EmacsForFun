@@ -13,7 +13,7 @@
                 ;; (arglist-cont-nonempty . +)
                 (template-args-cont . +))))
 (setq c-default-style "microsoft")
-(global-linum-mode 1)
+(global-display-line-numbers-mode)
 (global-hl-line-mode 1);;高亮当前行
 (show-paren-mode t);;高亮匹配括号
 (global-font-lock-mode t);;语法高亮
