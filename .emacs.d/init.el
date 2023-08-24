@@ -26,6 +26,7 @@
 		(?\{ . ?\})  ;; 添加大括号补齐
 		(?\' . ?\')
         (?\< . ?\>))) ;; 添加单引号补齐
+(global-set-key (kbd "<f9>") 'other-window)
 (global-set-key (kbd "<f11>") 'previous-buffer)
 (global-set-key (kbd "<f12>") 'next-buffer)
 (setq package-archives '(("gnu"    . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
