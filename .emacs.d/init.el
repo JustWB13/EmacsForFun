@@ -14,6 +14,8 @@
                 (template-args-cont . +))))
 (setq c-default-style "microsoft")
 ;;(global-display-line-numbers-mode)
+;;显示行号
+(setq display-line-numbers-type 'relative)
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
 (global-hl-line-mode 1);;高亮当前行
 (show-paren-mode t);;高亮匹配括号
@@ -54,7 +56,7 @@
   :ensure t
   :init (global-company-mode)
   :config
-  (setq company-minimum-prefix-length 1) ; 只需敲 1 个字母就开始进行自动补全
+  (setq company-minimum-prefix-length 3) ; 只需敲 1 个字母就开始进行自动补全
   (setq company-tooltip-align-annotations t)
   (setq company-idle-delay 0.0)
   (setq company-show-numbers t) ;; 给选项编号 (按快捷键 M-1、M-2 等等来进行选择).
