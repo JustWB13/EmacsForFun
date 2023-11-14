@@ -86,6 +86,7 @@
   :bind (("C-s" . swiper)
          ("C-r" . swiper)))
 
+(set-face-attribute 'default nil :height 160)
 (use-package modus-themes
   :ensure t
   :init
