@@ -86,6 +86,15 @@
   :bind (("C-s" . swiper)
          ("C-r" . swiper)))
 
+(use-package rust-mode
+  :ensure t
+  :hook (rust-mode . (lambda ()
+                       (setq indent-tabs-mode nil)
+                       ))
+  :config
+  (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode)))
+
+
 (set-face-attribute 'default nil :height 160)
 (use-package modus-themes
   :ensure t
