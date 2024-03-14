@@ -32,7 +32,6 @@
                 (innamespace . -)
                 (inline-open . 0)
                 (inher-cont . c-lineup-multi-inher)
-                ;; (arglist-cont-nonempty . +)
                 (template-args-cont . +))))
 (setq c-default-style "microsoft")
 
@@ -54,13 +53,42 @@
 (use-package company
   :ensure t
   :init (global-company-mode)
+  :after lsp-mode
+  :hook (lsp-mode . company-mode)
   :config
   (setq company-minimum-prefix-length 3) 
   (setq company-tooltip-align-annotations t)
-  (setq company-idle-delay 0.0)
+  (setq company-idle-delay 0.5)
   (setq company-show-numbers t) 
   (setq company-selection-wrap-around t)
-  (setq company-transformers '(company-sort-by-occurrence))) 
+  (setq company-transformers '(company-sort-by-backend-importance
+                               company-sort-by-occurrence))) 
+
+(use-package lsp-mode
+  :ensure t
+  :commands (lsp lsp-deferred)
+  :hook (prog-mode . lsp-deferred)
+  :config
+  (setq lsp-auto-guess-root t)
+  (setq lsp-keep-workspace-alive nil)
+  (setq lsp-enable-auto-install t))
+
+(use-package lsp-ui :commands lsp-ui-mode)
+(use-package which-key
+  :config
+  (which-key-mode))
+
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode))
+
+(use-package projectile
+  :ensure t
+  :config
+  (projectile-mode +1)
+  :bind (:map projectile-mode-map
+              ("C-c p" . projectile-command-map)))
+
 
 (use-package ivy
   :diminish
