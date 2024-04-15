@@ -67,13 +67,12 @@
 (use-package lsp-mode
   :ensure t
   :commands (lsp lsp-deferred)
-  :hook (prog-mode . lsp-deferred)
+  ;:hook (prog-mode . lsp-deferred)
   :config
   (setq lsp-auto-guess-root t)
   (setq lsp-keep-workspace-alive nil)
   (setq lsp-enable-auto-install t))
 
-(use-package lsp-ui :commands lsp-ui-mode)
 (use-package which-key
   :config
   (which-key-mode))
