@@ -1,11 +1,11 @@
 (setq gc-cons-threshold 32000000)
 (setq read-process-output-max (* 1024 1024)) ;; 1mb
 
-;;key binding
-(global-set-key (kbd "<f9>") 'other-window)
-(global-set-key (kbd "<f11>") 'previous-buffer)
-(global-set-key (kbd "<f12>") 'next-buffer)
+;;key binding & unset
 (global-unset-key (kbd "C-x b"))
+(global-set-key (kbd "M-0") 'other-window)
+(global-set-key (kbd "M--") 'previous-buffer)
+(global-set-key (kbd "M-=") 'next-buffer)
 
 ;;display style
 (setq display-line-numbers-type 'relative)
