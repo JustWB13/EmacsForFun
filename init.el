@@ -53,7 +53,7 @@
 (use-package company
   :ensure t
   :init (global-company-mode)
-  :after lsp-mode
+  ;:after lsp-mode
   :hook (lsp-mode . company-mode)
   :config
   (setq company-minimum-prefix-length 3) 
