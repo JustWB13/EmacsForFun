@@ -91,21 +91,21 @@
   :config
   (projectile-mode +1))
 
-(use-package treemacs-projectile
-  :after (treemacs projectile)
-  :ensure t
-  :config
-  (global-set-key (kbd "C-c p") 'treemacs-projectile)
-  (global-set-key (kbd "C-c t") 'treemacs-select-window))
-
 (use-package treemacs
   :ensure t
   :defer t
   :config
-  (setq treemacs-is-never-other-window t)
+  ;(setq treemacs-is-never-other-window t)
   (global-set-key (kbd "C-c r") 'treemacs-remove-project-from-workspace)
   (global-set-key (kbd "C-c a") 'treemacs-add-project-to-workspace))
-(add-hook 'emacs-startup-hook 'treemacs)
+
+(use-package treemacs-projectile
+  :after (treemacs projectile)
+  :ensure t
+  :config)
+(global-set-key (kbd "C-c t") 'treemacs)
+
+;(add-hook 'emacs-startup-hook 'treemacs)
 
 (use-package ivy
   :diminish
