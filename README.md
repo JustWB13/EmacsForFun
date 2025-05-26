@@ -6,6 +6,6 @@ lsp-mode on, rust-analyzer need to be installed, clangd need to be installed
 
 for clangd, run 
 
-```bash
+```
 sudo apt install clangd
 ```
