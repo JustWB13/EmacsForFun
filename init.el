@@ -69,6 +69,42 @@
   :config
   (gcmh-mode 1))
 
+;; big file
+(use-package so-long
+  :ensure t
+  :config (global-so-long-mode 1))
+
+;; ===========================
+;; LSP, Company, Flycheck (已修正和优化)
+;; ===========================
+(use-package lsp-mode
+  :ensure t
+  :commands (lsp lsp-deferred)
+  :hook (prog-mode . lsp-deferred) ;; 关键：异步启动
+  :config
+  (setq lsp-auto-guess-root t
+        lsp-keep-workspace-alive nil
+        lsp-enable-auto-install nil ;; 建议：手动安装 lsp server
+        lsp-log-io nil))
+
+(use-package company
+  :ensure t
+  :hook (lsp-mode . company-mode) ;; 在 lsp 准备好后启动
+  :bind (:map company-active-map
+              ("<tab>" . company-complete-selection))
+  :config
+  (setq company-minimum-prefix-length 2
+        company-idle-delay 0.2
+        company-backends '((company-capf company-dabbrev-code company-keywords))))
+
+(use-package flycheck
+  :ensure t
+  :defer t ;; 明确延迟
+  :hook (prog-mode . flycheck-mode)
+  :config
+  (setq flycheck-idle-change-delay 0.8)
+  (setq flycheck-check-syntax-automatically '(mode-enabled save)))
+
 ;; ===========================
 ;; SLIME for Common Lisp
 ;; ===========================
@@ -92,47 +128,12 @@
   (add-to-list 'auto-mode-alist '("\\.asd\\'" . lisp-mode)))
 
 ;; ===========================
-;; 自动补全 company
-;; ===========================
-(use-package company
-  :ensure t
-  :init (global-company-mode)
-  ;;:hook (lsp-mode . company-mode)
-  :hook (prog-mode . global-company-mode)
-  :config
-  (setq company-minimum-prefix-length 3
-        company-tooltip-align-annotations t
-        company-idle-delay 0.5
-        company-show-numbers t
-        company-selection-wrap-around t
-        company-transformers '(company-sort-by-backend-importance
-                               company-sort-by-occurrence)))
-
-;; ===========================
-;; LSP 支持
-;; ===========================
-(use-package lsp-mode
-  :ensure t
-  :commands (lsp lsp-deferred)
-  :config
-  (setq lsp-auto-guess-root t
-        lsp-keep-workspace-alive nil
-        lsp-enable-auto-install t))
-
-;; ===========================
 ;; 快捷提示 which-key
 ;; ===========================
 (use-package which-key
   :ensure t
   :defer 1
   :config (which-key-mode))
-
-;; ===========================
-;; 语法检查 flycheck
-;; ===========================
-(use-package flycheck
-  :init (global-flycheck-mode)
-  :hook (prog-mode . flycheck-mode))
 
 ;; ===========================
 ;; 选项卡 centaur-tabs
@@ -200,14 +201,31 @@
 (add-hook 'emacs-startup-hook #'ibuffer-sidebar-show-sidebar)
 
 ;; ===========================
-;; Ivy + Swiper
+;; Ivy + Counsel + Swiper
 ;; ===========================
 (use-package ivy
-  :diminish
-  :bind (("C-s" . swiper)
+  :ensure t
+  :diminish (ivy-mode . "") ;; 让 mode-line 更整洁
+  :init
+  ;; 关键修正: 将 ivy-mode 移动到 :init 块。
+  ;; 这会立即激活 ivy-mode, 使得 minibuffer 在任何时候
+  ;; (即使 ivy 包主体还未加载) 都准备好使用 Ivy 界面。
+  (ivy-mode 1)
+  :bind (;; 绑定 counsel 提供的命令，覆盖原生命令
+         ("C-x C-f" . counsel-find-file)
+         ("C-x b"   . counsel-switch-buffer)
+         ;; 其他有用的 counsel 命令，您可以按需添加
+         ("M-x"     . counsel-M-x)
+         ("C-c f"   . counsel-git)
+         ("C-c j"   . counsel-imenu)
+         
+         ;; Swiper 绑定
+         ("C-s" . swiper)
+         ("C-r" . swiper)
+
+         ;; Ivy 内部快捷键
          :map ivy-minibuffer-map
          ("TAB" . ivy-alt-done)
-         ("C-l" . ivy-alt-done)
          ("C-j" . ivy-next-line)
          ("C-k" . ivy-previous-line)
          :map ivy-switch-buffer-map
@@ -217,18 +235,12 @@
          :map ivy-reverse-i-search-map
          ("C-k" . ivy-previous-line)
          ("C-d" . ivy-reverse-i-search-kill))
-  :config (ivy-mode 1))
-;;
-
-(use-package counsel
-  :ensure t
-  :after ivy)  ;; C-x b 用于快速切换 buffer
-(global-set-key (kbd "C-x b") 'counsel-switch-buffer)
-
-(use-package swiper
-  :after ivy
-  :bind (("C-s" . swiper)
-         ("C-r" . swiper)))
+  :config
+  ;; 一些推荐的 Ivy 配置
+  (setq ivy-use-virtual-buffers t)
+  (setq ivy-count-format "(%d/%d) ")
+  (setq ivy-re-builders-alist '((swiper . ivy--regex-plus)
+                               (t      . ivy--regex-fuzzy))))
 
 ;; ===========================
 ;; Rust 支持
