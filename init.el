@@ -47,9 +47,10 @@
 ;; 包管理 & 基础配置
 ;; ===========================
 (require 'package)
-(setq package-archives '(("gnu"    . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-                         ("nongnu" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/nongnu/")
-                         ("melpa"  . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
+(setq package-archives '(
+                         ("gnu" . "https://mirrors.ustc.edu.cn/elpa/gnu/")
+                         ("melpa" . "https://mirrors.ustc.edu.cn/elpa/melpa/")
+                         ("nongnu" . "https://mirrors.ustc.edu.cn/elpa/nongnu/")
                          ;; official
                          ("gnu-official"    . "https://elpa.gnu.org/packages/")
                          ("nongnu-official" . "https://elpa.nongnu.org/packages/")
@@ -160,24 +161,6 @@
   :hook (emacs-startup . centaur-tabs-mode))
 
 ;; ===========================
-;; 项目管理 projectile (已注释)
-;; ===========================
-;; (use-package projectile
-;;   :config (projectile-mode +1))
-
-;; ===========================
-;; 文件树 treemacs (已注释)
-;; ===========================
-;; (use-package treemacs
-;;   :defer t
-;;   :config
-;;   (global-set-key (kbd "C-c r") 'treemacs-remove-project-from-workspace)
-;;   (global-set-key (kbd "C-c a") 'treemacs-add-project-to-workspace))
-;; (use-package treemacs-projectile
-;;   :after (treemacs projectile))
-;; (global-set-key (kbd "C-c t") 'treemacs)
-
-;; ===========================
 ;; Ibuffer-sidebar
 ;; ===========================
 
@@ -216,46 +199,41 @@
 (add-hook 'emacs-startup-hook #'ibuffer-sidebar-show-sidebar)
 
 ;; ===========================
-;; Ivy + Counsel + Swiper
+;; Ivy
 ;; ===========================
 (use-package ivy
   :ensure t
-  :diminish (ivy-mode . "") ;; 让 mode-line 更整洁
+  :diminish (ivy-mode . "")
   :init
-  ;; 关键修正: 将 ivy-mode 移动到 :init 块。
-  ;; 这会立即激活 ivy-mode, 使得 minibuffer 在任何时候
-  ;; (即使 ivy 包主体还未加载) 都准备好使用 Ivy 界面。
   (ivy-mode 1)
-  :bind (;; 绑定 counsel 提供的命令，覆盖原生命令
+  :config
+  (setq ivy-use-virtual-buffers t
+        ivy-count-format "(%d/%d) "
+        ivy-re-builders-alist '((swiper . ivy--regex-plus)
+                                (t . ivy--regex-fuzzy))))
+
+;; ===========================
+;; Counsel
+;; ===========================
+(use-package counsel
+  :ensure t
+  :after ivy
+  :config
+  (counsel-mode 1)
+  :bind (("M-x"     . counsel-M-x)
          ("C-x C-f" . counsel-find-file)
          ("C-x b"   . counsel-switch-buffer)
-         ;; 其他有用的 counsel 命令，您可以按需添加
-         ("M-x"     . counsel-M-x)
          ("C-c f"   . counsel-git)
-         ("C-c j"   . counsel-imenu)
-         
-         ;; Swiper 绑定
-         ("C-s" . swiper)
-         ("C-r" . swiper)
+         ("C-c j"   . counsel-imenu)))
 
-         ;; Ivy 内部快捷键
-         :map ivy-minibuffer-map
-         ("TAB" . ivy-alt-done)
-         ("C-j" . ivy-next-line)
-         ("C-k" . ivy-previous-line)
-         :map ivy-switch-buffer-map
-         ("C-k" . ivy-previous-line)
-         ("C-l" . ivy-done)
-         ("C-d" . ivy-switch-buffer-kill)
-         :map ivy-reverse-i-search-map
-         ("C-k" . ivy-previous-line)
-         ("C-d" . ivy-reverse-i-search-kill))
-  :config
-  ;; 一些推荐的 Ivy 配置
-  (setq ivy-use-virtual-buffers t)
-  (setq ivy-count-format "(%d/%d) ")
-  (setq ivy-re-builders-alist '((swiper . ivy--regex-plus)
-                               (t      . ivy--regex-fuzzy))))
+;; ===========================
+;; Swiper
+;; ===========================
+(use-package swiper
+  :ensure t
+  :after ivy
+  :bind (("C-s" . swiper)
+         ("C-r" . swiper)))
 
 ;; ===========================
 ;; Rust 支持
