@@ -77,15 +77,32 @@
 ;; ===========================
 ;; LSP, Company, Flycheck (已修正和优化)
 ;; ===========================
+;;(use-package lsp-mode
+;;  :ensure t
+;;  :commands (lsp lsp-deferred)
+;;  :hook (prog-mode . lsp-deferred) ;; 关键：异步启动
+;;  :config
+;;  (setq lsp-auto-guess-root t
+;;        lsp-keep-workspace-alive nil
+;;        lsp-enable-auto-install nil ;; 建议：手动安装 lsp server
+;;        lsp-log-io nil))
+
 (use-package lsp-mode
   :ensure t
   :commands (lsp lsp-deferred)
-  :hook (prog-mode . lsp-deferred) ;; 关键：异步启动
+  :init
+  ;; 避免在 lisp-mode 中自动启用 lsp
+  (defun my/lsp-conditional-activate ()
+    (unless (derived-mode-p 'lisp-mode)
+      (lsp-deferred)))
+  :hook
+  (prog-mode . my/lsp-conditional-activate)
   :config
   (setq lsp-auto-guess-root t
         lsp-keep-workspace-alive nil
-        lsp-enable-auto-install nil ;; 建议：手动安装 lsp server
+        lsp-enable-auto-install nil
         lsp-log-io nil))
+
 
 (use-package company
   :ensure t
@@ -106,24 +123,22 @@
   (setq flycheck-check-syntax-automatically '(mode-enabled save)))
 
 ;; ===========================
-;; SLIME for Common Lisp
+;; SLY for Common Lisp
 ;; ===========================
-(use-package slime
+(use-package sly
   :ensure t
-  :commands (slime slime-connect) ;; 延迟加载，直到调用 slime 或 slime-connect
+  :commands (sly sly-connect)
   :init
-  ;; 告诉 SLIME 你的 Common Lisp 实现是什么
-  ;; 如果 'sbcl' 不在系统 PATH 中，这里需要写绝对路径
+  ;; 设置你要用的 Common Lisp 实现，这里默认用 sbcl
+  ;; 如果 sbcl 不在 PATH，请写绝对路径
   (setq inferior-lisp-program "sbcl")
   :config
-  ;; slime-contribs 包含了很多有用的扩展功能
-  ;; slime-fancy 提供了更好的 REPL、更好的补全等
-  (require 'slime-fancy)
-  (setq slime-contribs '(slime-fancy
-                         slime-quicklisp
-                         slime-asdf))
+  ;; 推荐加载 sly-quicklisp、sly-asdf 等扩展
+  (setq sly-contribs '(sly-fancy
+                       sly-quicklisp
+                       sly-asdf))
 
-  ;; 将 .lisp 文件后缀与 lisp-mode 关联
+  ;; 文件关联
   (add-to-list 'auto-mode-alist '("\\.lisp\\'" . lisp-mode))
   (add-to-list 'auto-mode-alist '("\\.asd\\'" . lisp-mode)))
 
