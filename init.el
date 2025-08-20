@@ -19,9 +19,9 @@
 
 ;; PACKAGE MANAGEMENT
 (require 'package)
-(setq package-archives '(("gnu"    . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-                         ("nongnu" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/nongnu/")
-                         ("melpa"  . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
+(setq package-archives '(("gnu" . "https://mirrors.ustc.edu.cn/elpa/gnu/")
+                         ("melpa" . "https://mirrors.ustc.edu.cn/elpa/melpa/")
+                         ("nongnu" . "https://mirrors.ustc.edu.cn/elpa/nongnu/")
                          ;; official
                          ("gnu-official"    . "https://elpa.gnu.org/packages/")
                          ("nongnu-official" . "https://elpa.nongnu.org/packages/")
@@ -64,20 +64,18 @@
 ;; SLIME
 (use-package slime
   :ensure t
-  :commands (slime slime-connect) ;; 延迟加载，直到调用 slime 或 slime-connect
+  :commands (sly sly-connect)
   :init
-  ;; 告诉 SLIME 你的 Common Lisp 实现是什么
-  ;; 如果 'sbcl' 不在系统 PATH 中，这里需要写绝对路径
+  ;; 设置你要用的 Common Lisp 实现，这里默认用 sbcl
+  ;; 如果 sbcl 不在 PATH，请写绝对路径
   (setq inferior-lisp-program "sbcl")
   :config
-  ;; slime-contribs 包含了很多有用的扩展功能
-  ;; slime-fancy 提供了更好的 REPL、更好的补全等
-  (require 'slime-fancy)
-  (setq slime-contribs '(slime-fancy
-                         slime-quicklisp
-                         slime-asdf))
+  ;; 推荐加载 sly-quicklisp、sly-asdf 等扩展
+  (setq sly-contribs '(sly-fancy
+                       sly-quicklisp
+                       sly-asdf))
 
-  ;; 将 .lisp 文件后缀与 lisp-mode 关联
+  ;; 文件关联
   (add-to-list 'auto-mode-alist '("\\.lisp\\'" . lisp-mode))
   (add-to-list 'auto-mode-alist '("\\.asd\\'" . lisp-mode)))
 
