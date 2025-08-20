@@ -16,6 +16,14 @@
 (setq-default tab-width 4)
 (setq-default indent-tabs-mode nil)
 (setq c-basic-offset 4)
+(c-add-style "microsoft"
+             '("stroustrup"
+               (c-offsets-alist
+                (innamespace . -)
+                (inline-open . 0)
+                (inher-cont . c-lineup-multi-inher)
+                (template-args-cont . +))))
+(setq c-default-style "microsoft")
 
 ;; PACKAGE MANAGEMENT
 (require 'package)
