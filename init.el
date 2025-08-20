@@ -1,51 +1,23 @@
-;; ===========================
-;; 性能优化
-;; ===========================
+;; BEGIN
+
+;; PERFORMANCE
 (setq gc-cons-threshold (* 128 1024 1024))
-(setq read-process-output-max (* 1024 1024)) ;; 1mb
+(setq read-process-output-max (* 1024 1024))
 
-;; ===========================
-;; 全局按键 & 取消默认
-;; ===========================
-(global-unset-key (kbd "C-x b"))
-(global-set-key (kbd "M-0") 'other-window)
-(global-set-key (kbd "M--") 'previous-buffer)
-(global-set-key (kbd "M-=") 'next-buffer)
-
-;; ===========================
-;; 显示样式
-;; ===========================
+;; DISPLAY
 (setq display-line-numbers-type 'relative)
 (add-hook 'prog-mode-hook 'display-line-numbers-mode)
-(global-hl-line-mode 1)     ;; 高亮当前行
-(show-paren-mode t)         ;; 高亮括号
-(global-font-lock-mode t)   ;; 语法高亮
-(electric-pair-mode 1)      ;; 自动补对
-(setq electric-pair-pairs
-      '((?\" . ?\")
-        (?\{ . ?\})
-        (?\' . ?\')
-        (?\< . ?\>)))
+(global-hl-line-mode 1)
+(show-paren-mode t)
+(electric-pair-mode 1)
 
-;; ===========================
-;; 编码风格
-;; ===========================
+;; STYLE
 (setq make-backup-files nil)
 (setq-default tab-width 4)
 (setq-default indent-tabs-mode nil)
 (setq c-basic-offset 4)
-(c-add-style "microsoft"
-             '("stroustrup"
-               (c-offsets-alist
-                (innamespace . -)
-                (inline-open . 0)
-                (inher-cont . c-lineup-multi-inher)
-                (template-args-cont . +))))
-(setq c-default-style "microsoft")
 
-;; ===========================
-;; 包管理 & 基础配置
-;; ===========================
+;; PACKAGE MANAGEMENT
 (require 'package)
 (setq package-archives '(("gnu"    . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
                          ("nongnu" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/nongnu/")
@@ -63,51 +35,33 @@
 (eval-when-compile
   (require 'use-package))
 
-;; gc optimize
+;; GCMH
 (use-package gcmh
   :ensure t
   :config
   (gcmh-mode 1))
 
-;; big file
+;; HUGE FILE
 (use-package so-long
   :ensure t
   :config (global-so-long-mode 1))
 
-;; ===========================
-;; LSP, Company, Flycheck (已修正和优化)
-;; ===========================
-(use-package lsp-mode
-  :ensure t
-  :commands (lsp lsp-deferred)
-  :hook (prog-mode . lsp-deferred) ;; 关键：异步启动
-  :config
-  (setq lsp-auto-guess-root t
-        lsp-keep-workspace-alive nil
-        lsp-enable-auto-install nil ;; 建议：手动安装 lsp server
-        lsp-log-io nil))
+;; THEME
+(use-package ample-theme
+  :init (progn (load-theme 'ample t t)
+               (load-theme 'ample-flat t t)
+               (load-theme 'ample-light t t)
+               (enable-theme 'ample-flat))
+  :defer t
+  :ensure t)
 
-(use-package company
-  :ensure t
-  :hook (lsp-mode . company-mode) ;; 在 lsp 准备好后启动
-  :bind (:map company-active-map
-              ("<tab>" . company-complete-selection))
+;; RUST
+(use-package rust-mode
+  :hook (rust-mode . (lambda () (setq indent-tabs-mode nil)))
   :config
-  (setq company-minimum-prefix-length 2
-        company-idle-delay 0.2
-        company-backends '((company-capf company-dabbrev-code company-keywords))))
+  (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode)))
 
-(use-package flycheck
-  :ensure t
-  :defer t ;; 明确延迟
-  :hook (prog-mode . flycheck-mode)
-  :config
-  (setq flycheck-idle-change-delay 0.8)
-  (setq flycheck-check-syntax-automatically '(mode-enabled save)))
-
-;; ===========================
-;; SLIME for Common Lisp
-;; ===========================
+;; SLIME
 (use-package slime
   :ensure t
   :commands (slime slime-connect) ;; 延迟加载，直到调用 slime 或 slime-connect
@@ -127,89 +81,22 @@
   (add-to-list 'auto-mode-alist '("\\.lisp\\'" . lisp-mode))
   (add-to-list 'auto-mode-alist '("\\.asd\\'" . lisp-mode)))
 
-;; ===========================
-;; 快捷提示 which-key
-;; ===========================
+;; WHICH-KEY
 (use-package which-key
   :ensure t
   :defer 1
   :config (which-key-mode))
 
-;; ===========================
-;; 选项卡 centaur-tabs
-;; ===========================
-(use-package centaur-tabs
-  ;;:demand
+;; COUNSEL + IVY + SWIPER
+(use-package counsel
   :ensure t
-  :config (centaur-tabs-mode t)
-  :hook (emacs-startup . centaur-tabs-mode))
+  :after ivy
+  :config (counsel-mode 1))
 
-;; ===========================
-;; 项目管理 projectile (已注释)
-;; ===========================
-;; (use-package projectile
-;;   :config (projectile-mode +1))
-
-;; ===========================
-;; 文件树 treemacs (已注释)
-;; ===========================
-;; (use-package treemacs
-;;   :defer t
-;;   :config
-;;   (global-set-key (kbd "C-c r") 'treemacs-remove-project-from-workspace)
-;;   (global-set-key (kbd "C-c a") 'treemacs-add-project-to-workspace))
-;; (use-package treemacs-projectile
-;;   :after (treemacs projectile))
-;; (global-set-key (kbd "C-c t") 'treemacs)
-
-;; ===========================
-;; Ibuffer-sidebar
-;; ===========================
-
-(setq ibuffer-saved-filter-groups
-      '(("default"  ;; 组名
-         ;; Org 文件
-         ("Org"     (mode . org-mode))
-         ;; Dired buffer
-         ("Dired"   (mode . dired-mode))
-         ;; Emacs 自带 buffer
-         ("Emacs"   (or
-                     (name . "^\\*scratch\\*$")
-                     (name . "^\\*Messages\\*$")))
-         ;; 代码类 buffer（所有 prog-mode 的子模式）
-         ("Code"    (derived-mode . prog-mode))
-         ;; Git 相关 buffer
-         ("Magit"   (name . "^\\*magit"))
-         ;; 其他……
-         )))
-
-;; 安装 ibuffer-sidebar
-(use-package ibuffer-sidebar
-  :ensure t
-  :bind (("C-x C-b" . ibuffer-sidebar-toggle-sidebar))  ;; C-x C-b 切换侧边栏
-  :config
-  ;; 侧边栏宽度
-  (setq ibuffer-sidebar-width 30)
-  ;; 自动刷新侧边栏（秒）
-  (setq ibuffer-sidebar-refresh-timer 2)
-  ;; 开启自动刷新命令钩子
-  (setq ibuffer-sidebar-refresh-on-special-commands t))
-(add-hook 'ibuffer-mode-hook
-          (lambda ()
-            ;; 切换到名为 "default" 的过滤组
-            (ibuffer-switch-to-saved-filter-groups "default")))
-(add-hook 'emacs-startup-hook #'ibuffer-sidebar-show-sidebar)
-
-;; ===========================
-;; Ivy + Counsel + Swiper
-;; ===========================
 (use-package ivy
   :ensure t
-  :diminish (ivy-mode . "") ;; 让 mode-line 更整洁
+  :diminish (ivy-mode . "")
   :init
-  ;; 关键修正: 将 ivy-mode 移动到 :init 块。
-  ;; 这会立即激活 ivy-mode, 使得 minibuffer 在任何时候
-  ;; (即使 ivy 包主体还未加载) 都准备好使用 Ivy 界面。
   (ivy-mode 1)
   :bind (;; 绑定 counsel 提供的命令，覆盖原生命令
          ("C-x C-f" . counsel-find-file)
@@ -218,7 +105,7 @@
          ("M-x"     . counsel-M-x)
          ("C-c f"   . counsel-git)
          ("C-c j"   . counsel-imenu)
-         
+
          ;; Swiper 绑定
          ("C-s" . swiper)
          ("C-r" . swiper)
@@ -242,33 +129,115 @@
   (setq ivy-re-builders-alist '((swiper . ivy--regex-plus)
                                (t      . ivy--regex-fuzzy))))
 
-;; ===========================
-;; Rust 支持
-;; ===========================
-(use-package rust-mode
-  :hook (rust-mode . (lambda () (setq indent-tabs-mode nil)))
-  :config
-  (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode)))
+;; ESHELL + SHACKLE
+(defvar my/eshell-pane-window nil
+  "专用的底部 side window，用于承载 eshell。")
+(defvar my/eshell-pane-height 0.3
+  "底部窗格高度占比。")
 
-;; ===========================
-;; 字体与主题
-;; ===========================
-(set-face-attribute 'default nil :height 160)
-(use-package modus-themes
-  :init (load-theme 'modus-vivendi t))
+(defun my//ensure-eshell-buffer (index)
+  "返回第 INDEX 个 Eshell buffer，不存在则创建。"
+  (require 'eshell)
+  (let* ((name (format "*eshell-%d*" index))
+         (buf  (get-buffer name)))
+    (if (and buf (buffer-live-p buf)
+             (with-current-buffer buf (derived-mode-p 'eshell-mode)))
+        buf
+      (save-window-excursion
+        (let ((eshell-buffer-name name))
+          (eshell))                       ; 真正启动 eshell-mode
+        (get-buffer name)))))
 
-;; ===========================
-;; Custom-set 由 Emacs 自动管理
-;; ===========================
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages nil))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+(defun my//show-in-bottom-pane (buf &optional select)
+  "把 BUF 显示到专用底部 side window 中；若不存在则创建。"
+  (if (and (window-live-p my/eshell-pane-window)
+           (window-parameter my/eshell-pane-window 'my-eshell-pane))
+      (progn
+        (set-window-buffer my/eshell-pane-window buf)
+        (when select (select-window my/eshell-pane-window))
+        my/eshell-pane-window)
+    ;; 创建或复用 slot=0 的底部 side window
+    (let* ((win (display-buffer
+                 buf
+                 '((display-buffer-in-side-window)
+                   (side . bottom)
+                   (slot . 0)
+                   (window-height . my/eshell-pane-height)
+                   (window-parameters . ((no-other-window . t)
+                                         (no-delete-other-windows . t)
+                                         (my-eshell-pane . t)))))))
+      (setq my/eshell-pane-window win)
+      (when select (select-window win))
+      win)))
+
+(defun my/toggle-eshell-n (index)
+  "Toggle 第 INDEX 个 Eshell：同 buffer 再按一次则隐藏；否则在同一底部窗格切换。"
+  (interactive "p")
+  (let* ((buf (my//ensure-eshell-buffer index))
+         (win (and (window-live-p my/eshell-pane-window)
+                   my/eshell-pane-window)))
+    (if (and win (eq (window-buffer win) buf))
+        (progn
+          (delete-window win)              ; 隐藏
+          (setq my/eshell-pane-window nil))
+      (my//show-in-bottom-pane buf t))))   ; 切换/显示
+
+;; 绑定 M-1 ... M-9
+(dotimes (i 9)
+  (let* ((n (1+ i))
+         (fname (intern (format "my/toggle-eshell-%d" n))))
+    ;; 生成 9 个可交互命令，避免闭包键位捕获问题
+    (fset fname `(lambda () (interactive) (my/toggle-eshell-n ,n)))
+    ;; 覆盖默认 digit-argument
+    (global-unset-key (kbd (format "M-%d" n)))
+    (global-set-key (kbd (format "M-%d" n)) fname)))
+
+;; TAB-LINE SETTING
+(global-tab-line-mode 1)
+
+;; 只保留“有文件名”的 buffer（排除 *Messages* / *Help* 等）
+(defun my/tab-line-tabs-only-files ()
+  "Return only file-visiting buffers for tab-line."
+  (seq-filter
+   (lambda (b)
+     (buffer-local-value 'buffer-file-name b))
+   (tab-line-tabs-window-buffers)))
+
+(setq tab-line-tabs-function #'my/tab-line-tabs-only-files)
+
+;; 可选：标签名使用简短文件名（不带路径），更紧凑
+(setq tab-line-tab-name-function
+      (lambda (buffer &optional _buffers)
+        (format " %s " (buffer-name buffer))))
+
+;; 可选：不显示关闭按钮，保持干净
+(setq tab-line-close-button-show nil)
+
+;; 保险起见：提供“只在文件 buffer 间循环”的 next/prev（不依赖 tab-line）
+(defun my/next-file-buffer ()
+  "Cycle to next file-visiting buffer only."
+  (interactive)
+  (let ((start (current-buffer)))
+    (next-buffer)
+    (while (and (not (eq (current-buffer) start))
+                (not buffer-file-name))
+      (next-buffer))
+    (when (eq (current-buffer) start)
+      (message "No other file buffers."))))
+
+(defun my/prev-file-buffer ()
+  "Cycle to previous file-visiting buffer only."
+  (interactive)
+  (let ((start (current-buffer)))
+    (previous-buffer)
+    (while (and (not (eq (current-buffer) start))
+                (not buffer-file-name))
+      (previous-buffer))
+    (when (eq (current-buffer) start)
+      (message "No other file buffers."))))
+
+(global-set-key (kbd "M-0") 'other-window)
+(global-set-key (kbd "M--") #'my/next-file-buffer)
+(global-set-key (kbd "M-=")  #'my/prev-file-buffer)
+;; END
+

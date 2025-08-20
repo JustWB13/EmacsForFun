@@ -1,5 +1,4 @@
 #!/bin/bash
 
-git pull
-
+cp early-init.el ~/.emacs.d/
 cp init.el ~/.emacs.d/
