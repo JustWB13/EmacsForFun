@@ -43,6 +43,8 @@
 (eval-when-compile
   (require 'use-package))
 
+(setq use-package-always-ensure t)
+
 ;; GCMH
 (use-package gcmh
   :ensure t
@@ -63,29 +65,36 @@
   :defer t
   :ensure t)
 
+;; CODE COMPLETE
+(add-hook 'prog-mode-hook #'eglot-ensure)
+
+(use-package company
+  :hook (prog-mode . company-mode)
+  :custom
+  (company-backends '(company-capf)) ;; eglot 走 CAPF
+  (company-minimum-prefix-length 1)
+  (company-idle-delay 0.0)) ;; 实时触发
+
+(use-package yasnippet
+  :init (yas-global-mode 1))
+
+(with-eval-after-load 'eglot
+  ;; 忽略 onTypeFormatting (回车时自动格式化)
+  (add-to-list 'eglot-ignored-server-capabilities :documentOnTypeFormattingProvider))
+
 ;; RUST
 (use-package rust-mode
   :hook (rust-mode . (lambda () (setq indent-tabs-mode nil)))
   :config
   (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode)))
 
-;; SLIME
-(use-package slime
+;; SLY
+(use-package sly
   :ensure t
   :commands (sly sly-connect)
   :init
-  ;; 设置你要用的 Common Lisp 实现，这里默认用 sbcl
-  ;; 如果 sbcl 不在 PATH，请写绝对路径
   (setq inferior-lisp-program "sbcl")
-  :config
-  ;; 推荐加载 sly-quicklisp、sly-asdf 等扩展
-  (setq sly-contribs '(sly-fancy
-                       sly-quicklisp
-                       sly-asdf))
-
-  ;; 文件关联
-  (add-to-list 'auto-mode-alist '("\\.lisp\\'" . lisp-mode))
-  (add-to-list 'auto-mode-alist '("\\.asd\\'" . lisp-mode)))
+  (setq sly-contribs '(sly-fancy sly-quicklisp sly-asdf)))
 
 ;; WHICH-KEY
 (use-package which-key
@@ -94,46 +103,32 @@
   :config (which-key-mode))
 
 ;; COUNSEL + IVY + SWIPER
-(use-package counsel
-  :ensure t
-  :after ivy
-  :config (counsel-mode 1))
-
 (use-package ivy
-  :ensure t
-  :diminish (ivy-mode . "")
   :init
+  (setq ivy-use-virtual-buffers t
+        ivy-count-format "(%d/%d) "
+        ivy-re-builders-alist '((swiper . ivy--regex-plus)
+                                (t      . ivy--regex-fuzzy)))
+  :config
   (ivy-mode 1)
-  :bind (;; 绑定 counsel 提供的命令，覆盖原生命令
-         ("C-x C-f" . counsel-find-file)
+  (let ((map ivy-minibuffer-map))
+    (define-key map (kbd "TAB") #'ivy-alt-done)
+    (define-key map (kbd "C-j") #'ivy-next-line)
+    (define-key map (kbd "C-k") #'ivy-previous-line)))
+
+(use-package swiper
+  :after ivy
+  :bind (("C-s" . swiper)
+         ("C-r" . swiper)))
+
+(use-package counsel
+  :after ivy
+  :init (counsel-mode 1)
+  :bind (("C-x C-f" . counsel-find-file)
          ("C-x b"   . counsel-switch-buffer)
-         ;; 其他有用的 counsel 命令，您可以按需添加
          ("M-x"     . counsel-M-x)
          ("C-c f"   . counsel-git)
-         ("C-c j"   . counsel-imenu)
-
-         ;; Swiper 绑定
-         ("C-s" . swiper)
-         ("C-r" . swiper)
-
-         ;; Ivy 内部快捷键
-         :map ivy-minibuffer-map
-         ("TAB" . ivy-alt-done)
-         ("C-j" . ivy-next-line)
-         ("C-k" . ivy-previous-line)
-         :map ivy-switch-buffer-map
-         ("C-k" . ivy-previous-line)
-         ("C-l" . ivy-done)
-         ("C-d" . ivy-switch-buffer-kill)
-         :map ivy-reverse-i-search-map
-         ("C-k" . ivy-previous-line)
-         ("C-d" . ivy-reverse-i-search-kill))
-  :config
-  ;; 一些推荐的 Ivy 配置
-  (setq ivy-use-virtual-buffers t)
-  (setq ivy-count-format "(%d/%d) ")
-  (setq ivy-re-builders-alist '((swiper . ivy--regex-plus)
-                               (t      . ivy--regex-fuzzy))))
+         ("C-c j"   . counsel-imenu)))
 
 ;; ESHELL + SHACKLE
 (defvar my/eshell-pane-window nil
