@@ -1,7 +1,6 @@
-;; BEGIN
+;;; init.el --- Main configuration  -*- lexical-binding: t; -*-
 
 ;; PERFORMANCE
-(setq gc-cons-threshold (* 128 1024 1024))
 (setq read-process-output-max (* 1024 1024))
 
 ;; DISPLAY
@@ -23,7 +22,11 @@
                 (inline-open . 0)
                 (inher-cont . c-lineup-multi-inher)
                 (template-args-cont . +))))
-(setq c-default-style "microsoft")
+(setq c-default-style '((c-mode . "microsoft")
+                        (c++-mode . "microsoft")
+                        (java-mode . "java")
+                        (awk-mode . "awk")
+                        (other . "gnu")))
 
 ;; PACKAGE MANAGEMENT
 (require 'package)
@@ -58,35 +61,44 @@
 
 ;; THEME
 (use-package ample-theme
-  :init (progn (load-theme 'ample t t)
-               (load-theme 'ample-flat t t)
-               (load-theme 'ample-light t t)
-               (enable-theme 'ample-flat))
-  :defer t
-  :ensure t)
+  :ensure t
+  :config
+  (load-theme 'ample t t)
+  (load-theme 'ample-flat t t)
+  (load-theme 'ample-light t t)
+  (enable-theme 'ample-flat))
 
 ;; CODE COMPLETE
-(add-hook 'prog-mode-hook #'eglot-ensure)
+(use-package eglot
+  :ensure nil
+  :hook (prog-mode . eglot-ensure)
+  :config
+  (setq eglot-events-buffer-size 0)
+  (fset 'jsonrpc--log-event #'ignore)
+  (add-to-list 'eglot-ignored-server-capabilities
+               :documentOnTypeFormattingProvider))
 
 (use-package company
   :hook (prog-mode . company-mode)
   :custom
-  (company-backends '(company-capf)) ;; eglot 走 CAPF
+  (company-backends '((company-capf company-dabbrev-code)
+                      company-dabbrev
+                      company-files))
   (company-minimum-prefix-length 1)
-  (company-idle-delay 0.0)) ;; 实时触发
+  (company-idle-delay 0.1))
 
 (use-package yasnippet
-  :init (yas-global-mode 1))
+  :ensure t
+  :config (yas-global-mode 1))
 
-(with-eval-after-load 'eglot
-  ;; 忽略 onTypeFormatting (回车时自动格式化)
-  (add-to-list 'eglot-ignored-server-capabilities :documentOnTypeFormattingProvider))
+(use-package yasnippet-snippets
+  :ensure t
+  :after yasnippet)
 
 ;; RUST
 (use-package rust-mode
-  :hook (rust-mode . (lambda () (setq indent-tabs-mode nil)))
-  :config
-  (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode)))
+  :ensure t
+  :mode "\\.rs\\'")
 
 ;; SLY
 (use-package sly
@@ -185,36 +197,28 @@
 
 ;; 绑定 M-1 ... M-9
 (dotimes (i 9)
-  (let* ((n (1+ i))
-         (fname (intern (format "my/toggle-eshell-%d" n))))
-    ;; 生成 9 个可交互命令，避免闭包键位捕获问题
-    (fset fname `(lambda () (interactive) (my/toggle-eshell-n ,n)))
-    ;; 覆盖默认 digit-argument
+  (let ((n (1+ i)))
     (global-unset-key (kbd (format "M-%d" n)))
-    (global-set-key (kbd (format "M-%d" n)) fname)))
+    (global-set-key (kbd (format "M-%d" n))
+                    (lambda () (interactive) (my/toggle-eshell-n n)))))
 
 ;; TAB-LINE SETTING
-(global-tab-line-mode 1)
-
-;; 只保留“有文件名”的 buffer（排除 *Messages* / *Help* 等）
 (defun my/tab-line-tabs-only-files ()
-  "Return only file-visiting buffers for tab-line."
-  (seq-filter
-   (lambda (b)
-     (buffer-local-value 'buffer-file-name b))
-   (tab-line-tabs-window-buffers)))
+  "Return all file-visiting buffers, ordered by recency."
+  (seq-filter (lambda (b) (buffer-local-value 'buffer-file-name b))
+              (buffer-list)))
 
-(setq tab-line-tabs-function #'my/tab-line-tabs-only-files)
+(use-package tab-line
+  :ensure nil
+  :hook (prog-mode . tab-line-mode)
+  :config
+  (setq tab-line-tabs-function #'my/tab-line-tabs-only-files)
+  (setq tab-line-tab-name-function
+        (lambda (buffer &optional _buffers)
+          (format " %s " (buffer-name buffer))))
+  (setq tab-line-close-button-show nil))
 
-;; 可选：标签名使用简短文件名（不带路径），更紧凑
-(setq tab-line-tab-name-function
-      (lambda (buffer &optional _buffers)
-        (format " %s " (buffer-name buffer))))
-
-;; 可选：不显示关闭按钮，保持干净
-(setq tab-line-close-button-show nil)
-
-;; 保险起见：提供“只在文件 buffer 间循环”的 next/prev（不依赖 tab-line）
+;; 在文件 buffer 间循环（不依赖 tab-line）
 (defun my/next-file-buffer ()
   "Cycle to next file-visiting buffer only."
   (interactive)
@@ -239,6 +243,6 @@
 
 (global-set-key (kbd "M-0") 'other-window)
 (global-set-key (kbd "M--") #'my/next-file-buffer)
-(global-set-key (kbd "M-=")  #'my/prev-file-buffer)
-;; END
+(global-set-key (kbd "M-=") #'my/prev-file-buffer)
 
+;;; init.el ends here
