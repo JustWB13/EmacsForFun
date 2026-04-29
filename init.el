@@ -155,6 +155,8 @@
 (defvar my/eshell-pane-height 0.3
   "底部窗格高度占比。")
 
+(defvar eshell-buffer-name)
+
 (defun my//ensure-eshell-buffer (index)
   "返回第 INDEX 个 Eshell buffer，不存在则创建。"
   (require 'eshell)
@@ -164,8 +166,8 @@
              (with-current-buffer buf (derived-mode-p 'eshell-mode)))
         buf
       (save-window-excursion
-        (let ((eshell-buffer-name name))
-          (eshell))                       ; 真正启动 eshell-mode
+        (dlet ((eshell-buffer-name name))   ; dynamic binding，eshell 内部按 special var 读取
+          (eshell))
         (get-buffer name)))))
 
 (defun my//show-in-bottom-pane (buf &optional select)
