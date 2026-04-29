@@ -48,6 +48,14 @@
 
 (setq use-package-always-ensure t)
 
+;; PERSISTENCE & QUALITY OF LIFE
+(savehist-mode 1)
+(save-place-mode 1)
+(recentf-mode 1)
+(setq recentf-max-saved-items 200)
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(when (file-exists-p custom-file) (load custom-file))
+
 ;; GCMH
 (use-package gcmh
   :ensure t
@@ -114,33 +122,32 @@
   :defer 1
   :config (which-key-mode))
 
-;; COUNSEL + IVY + SWIPER
-(use-package ivy
-  :init
-  (setq ivy-use-virtual-buffers t
-        ivy-count-format "(%d/%d) "
-        ivy-re-builders-alist '((swiper . ivy--regex-plus)
-                                (t      . ivy--regex-fuzzy)))
-  :config
-  (ivy-mode 1)
-  (let ((map ivy-minibuffer-map))
-    (define-key map (kbd "TAB") #'ivy-alt-done)
-    (define-key map (kbd "C-j") #'ivy-next-line)
-    (define-key map (kbd "C-k") #'ivy-previous-line)))
+;; MINIBUFFER COMPLETION (vertico stack)
+(use-package vertico
+  :ensure t
+  :init (vertico-mode 1)
+  :custom (vertico-cycle t))
 
-(use-package swiper
-  :after ivy
-  :bind (("C-s" . swiper)
-         ("C-r" . swiper)))
+(use-package orderless
+  :ensure t
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-overrides
+   '((file (styles basic partial-completion)))))
 
-(use-package counsel
-  :after ivy
-  :init (counsel-mode 1)
-  :bind (("C-x C-f" . counsel-find-file)
-         ("C-x b"   . counsel-switch-buffer)
-         ("M-x"     . counsel-M-x)
-         ("C-c f"   . counsel-git)
-         ("C-c j"   . counsel-imenu)))
+(use-package marginalia
+  :ensure t
+  :init (marginalia-mode 1))
+
+(use-package consult
+  :ensure t
+  :bind (("C-s"     . consult-line)
+         ("C-r"     . consult-line)
+         ("C-x b"   . consult-buffer)
+         ("C-c f"   . consult-ripgrep)
+         ("C-c j"   . consult-imenu)
+         ("C-c r"   . consult-recent-file)
+         ("M-y"     . consult-yank-pop)))
 
 ;; ESHELL + SHACKLE
 (defvar my/eshell-pane-window nil
